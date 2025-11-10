@@ -113,20 +113,24 @@ function Dashboard() {
             <UsersList />
           ) : (
             <>
-              <div className="flex gap-4 items-start">
-                <div className="flex-1">
-                  <TaskFilters 
-                    onFiltersChange={setFilters} 
-                    currentUser={user} 
-                    users={users.filter(u => u.role !== "admin")} 
-                  />
-                </div>
+              <div className="flex justify-end mb-4">
                 <button
                   onClick={() => setShowForm(!showForm)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold whitespace-nowrap mt-1"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-lg"
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
                   {showForm ? "Cancel" : "New Task"}
                 </button>
+              </div>
+              
+              <div className="mb-6">
+                <TaskFilters 
+                  onFiltersChange={setFilters} 
+                  currentUser={user} 
+                  users={users.filter(u => u.role !== "admin")} 
+                />
               </div>
 
               {showForm && (
