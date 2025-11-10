@@ -102,11 +102,13 @@ function TaskForm({ onTaskCreated }) {
           className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:border-blue-400"
         >
           <option value="">Select User to Assign</option>
-          {users.map((user) => (
-            <option key={user._id} value={user._id}>
-              {user.name} ({user.email})
-            </option>
-          ))}
+          {users
+            .filter(user => user.role !== 'admin')
+            .map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name} ({user.email})
+              </option>
+            ))}
         </select>
       )}
 
