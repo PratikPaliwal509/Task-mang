@@ -2,6 +2,7 @@ import express from "express"
 import { authenticateToken } from "../middleware/auth.js"
 import Task from "../models/Task.js"
 
+import { sendEmail } from "../utils/sendEmail.js";
 const router = express.Router()
 
 // Get all tasks with filters
@@ -57,38 +58,104 @@ router.get("/assigned/:userId", authenticateToken, async(req, res) => {
 })
 
 // Create task
-router.post("/", authenticateToken, async(req, res) => {
-    try {
-        const { title, description, priority, dueDate, assignedTo } = req.body
+router.post("/", authenticateToken, async (req, res) => {
+  try {
+    const { title, description, priority, dueDate, assignedTo } = req.body;
 
-        if (!title) {
-            return res.status(400).json({ error: "Task title is required" })
-        }
-
-        // Only admins can assign tasks to others
-        if (assignedTo && assignedTo !== req.user.id && req.user.role !== "admin") {
-            return res.status(403).json({ error: "Only admins can assign tasks to other users" })
-        }
-
-        const task = new Task({
-            title,
-            description,
-            priority: priority || "medium",
-            dueDate,
-            assignedTo: assignedTo || req.user.id,
-            createdBy: req.user.id,
-        })
-
-        await task.save()
-        await task.populate("assignedTo", "id email name")
-        await task.populate("createdBy", "id email name")
-
-        res.status(201).json({ task })
-    } catch (error) {
-        console.error("Create task error:", error)
-        res.status(500).json({ error: "Failed to create task" })
+    if (!title) {
+      return res.status(400).json({ error: "Task title is required" });
     }
-})
+
+    // Only admins can assign tasks to others
+    if (assignedTo && assignedTo !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Only admins can assign tasks to other users" });
+    }
+
+    const task = new Task({
+      title,
+      description,
+      priority: priority || "medium",
+      dueDate,
+      assignedTo: assignedTo || req.user.id,
+      createdBy: req.user.id,
+    });
+
+    await task.save();
+    await task.populate("assignedTo", "id email name");
+    await task.populate("createdBy", "id email name");
+
+    // ✅ Send Email Notification
+    const assignedUser = task.assignedTo;
+    if (assignedUser?.email) {
+      const subject = `📝 New Task Assigned: ${task.title}`;
+      const message = `
+        Hello ${assignedUser.name || "User"},
+        
+        A new task has been assigned to you.
+        
+        Title: ${task.title}
+        Priority: ${task.priority}
+        Due Date: ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}
+        
+        Description:
+        ${task.description || "No description provided."}
+
+        — Task Manager
+      `;
+
+      const htmlMessage = `
+        <h2>New Task Assigned</h2>
+        <p><b>Title:</b> ${task.title}</p>
+        <p><b>Priority:</b> ${task.priority}</p>
+        <p><b>Due Date:</b> ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}</p>
+        <p><b>Description:</b> ${task.description || "No description provided."}</p>
+        <br/>
+        <p>Assigned by: <b>${task.createdBy.name || task.createdBy.email}</b></p>
+        <p style="color:#888">– Task Manager System</p>
+      `;
+
+      await sendEmail(assignedUser.email, subject, message, htmlMessage);
+    }
+
+    res.status(201).json({ task });
+  } catch (error) {
+    console.error("Create task error:", error);
+    res.status(500).json({ error: "Failed to create task" });
+  }
+});
+
+// router.post("/", authenticateToken, async(req, res) => {
+//     try {
+//         const { title, description, priority, dueDate, assignedTo } = req.body
+
+//         if (!title) {
+//             return res.status(400).json({ error: "Task title is required" })
+//         }
+
+//         // Only admins can assign tasks to others
+//         if (assignedTo && assignedTo !== req.user.id && req.user.role !== "admin") {
+//             return res.status(403).json({ error: "Only admins can assign tasks to other users" })
+//         }
+
+//         const task = new Task({
+//             title,
+//             description,
+//             priority: priority || "medium",
+//             dueDate,
+//             assignedTo: assignedTo || req.user.id,
+//             createdBy: req.user.id,
+//         })
+
+//         await task.save()
+//         await task.populate("assignedTo", "id email name")
+//         await task.populate("createdBy", "id email name")
+
+//         res.status(201).json({ task })
+//     } catch (error) {
+//         console.error("Create task error:", error)
+//         res.status(500).json({ error: "Failed to create task" })
+//     }
+// })
 
 // Add comment to a task
 router.post("/:id/comments", authenticateToken, async (req, res) => {

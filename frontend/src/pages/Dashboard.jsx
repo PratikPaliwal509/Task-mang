@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaSignOutAlt } from "react-icons/fa"
 import TaskList from "../components/TaskList"
@@ -18,6 +18,7 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState("list")
   const [showForm, setShowForm] = useState(false)
   const [users, setUsers] = useState([])
+  const formRef = useRef(null) // ref for scrolling to the task form when opened
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -40,6 +41,31 @@ function Dashboard() {
       }
     }
   }, [])
+
+  // Scroll to the form and focus the first input when the form is shown (user clicked "New Task").
+  useEffect(() => {
+    if (!showForm || !formRef.current) return
+
+    // Small timeout to allow layout to render
+    const t = setTimeout(() => {
+      try {
+        // Account for sticky header height so the form isn't hidden behind it
+        const headerHeight = document.querySelector('header')?.offsetHeight || 0
+        const rect = formRef.current.getBoundingClientRect()
+        const top = rect.top + window.pageYOffset - headerHeight - 12 // 12px padding
+
+        window.scrollTo({ top, behavior: 'smooth' })
+
+        // Focus the first input inside the form for keyboard accessibility
+        const firstInput = formRef.current.querySelector('input, textarea, select')
+        if (firstInput) firstInput.focus()
+      } catch (err) {
+        // ignore
+      }
+    }, 50)
+
+    return () => clearTimeout(t)
+  }, [showForm])
 
   const handleLogout = () => {
     localStorage.removeItem("token")
@@ -134,13 +160,15 @@ function Dashboard() {
               </div>
 
               {showForm && (
-                <TaskForm
-                  onTaskCreated={() => {
-                    setShowForm(false);
-                    // Force task list to refresh by triggering a filters update
-                    setFilters({ ...filters });
-                  }}
-                />
+                <div ref={formRef}>
+                  <TaskForm
+                    onTaskCreated={() => {
+                      setShowForm(false);
+                      // Force task list to refresh by triggering a filters update
+                      setFilters({ ...filters });
+                    }}
+                  />
+                </div>
               )}
 
               {activeTab === "list" ? (
