@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Search, Calendar, Filter, User, Flag } from "lucide-react"
 
 function TaskFilters({ onFiltersChange, users = [], currentUser }) {
   const [search, setSearch] = useState("")
@@ -10,6 +11,7 @@ function TaskFilters({ onFiltersChange, users = [], currentUser }) {
   const [endDate, setEndDate] = useState("")
   const [assignedTo, setAssignedTo] = useState("")
 
+  // debounce filters
   useEffect(() => {
     const handler = setTimeout(() => {
       onFiltersChange({
@@ -20,33 +22,43 @@ function TaskFilters({ onFiltersChange, users = [], currentUser }) {
         endDate: endDate || undefined,
         assignedTo: assignedTo || undefined,
       })
-    }, 300) // Debounce filter changes
-
+    }, 300)
     return () => clearTimeout(handler)
   }, [search, status, priority, startDate, endDate, assignedTo, onFiltersChange])
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 space-y-6 shadow-xl">
-      <div className="flex items-center px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-400/20">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-        </svg>
+    <div className="bg-slate-900/70 backdrop-blur-md border border-slate-700/70 rounded-2xl p-6 shadow-2xl space-y-6 transition-all duration-300 hover:shadow-blue-500/20">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div className="flex items-center gap-2 text-slate-300">
+          <Filter size={18} className="text-blue-400" />
+          <h2 className="font-semibold text-lg tracking-wide">Task Filters</h2>
+        </div>
+      </div>
+
+      {/* Search Box */}
+      <div className="relative">
+        <Search className="absolute left-3 top-3.5 text-slate-400" size={18} />
         <input
           type="text"
           placeholder="Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-3 py-1 bg-transparent text-white placeholder-slate-400 focus:outline-none"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Filters Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Status */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-400">Status</label>
+          <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+            <Flag size={14} className="text-yellow-400" /> Status
+          </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
           >
             <option value="">All Status</option>
             <option value="open">Open</option>
@@ -55,12 +67,15 @@ function TaskFilters({ onFiltersChange, users = [], currentUser }) {
           </select>
         </div>
 
+        {/* Priority */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-400">Priority</label>
+          <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+            <Flag size={14} className="text-red-400" /> Priority
+          </label>
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
           >
             <option value="">All Priority</option>
             <option value="low">Low</option>
@@ -69,13 +84,16 @@ function TaskFilters({ onFiltersChange, users = [], currentUser }) {
           </select>
         </div>
 
-        {currentUser && currentUser.role === "admin" && (
+        {/* Assigned To (Admin Only) */}
+        {currentUser?.role === "admin" && (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-400">Assigned To</label>
+            <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+              <User size={14} className="text-emerald-400" /> Assigned To
+            </label>
             <select
               value={assignedTo}
               onChange={(e) => setAssignedTo(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
+              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
             >
               <option value="">All Users</option>
               {users.map((user) => (
@@ -87,23 +105,29 @@ function TaskFilters({ onFiltersChange, users = [], currentUser }) {
           </div>
         )}
 
+        {/* Start Date */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-400">Start Date</label>
+          <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+            <Calendar size={14} className="text-blue-400" /> Start Date
+          </label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
           />
         </div>
 
+        {/* End Date */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-400">End Date</label>
+          <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+            <Calendar size={14} className="text-pink-400" /> End Date
+          </label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
           />
         </div>
       </div>
