@@ -60,6 +60,9 @@ backend `.env` (example)
 MONGODB_URI=mongodb://localhost:27017/task-management
 JWT_SECRET=your_jwt_secret
 PORT=5000
+EMAIL_USER=yourgmail@gmail.com
+EMAIL_PASS=abcdefghijklmnoP
+
 ```
 
 frontend `.env` (example)
