@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { FaSignOutAlt } from "react-icons/fa"
 import TaskList from "../components/TaskList"
 import TaskForm from "../components/TaskForm"
 import TaskFilters from "../components/TaskFilters"
@@ -61,7 +62,8 @@ function Dashboard() {
               </div>
             )}
           </div>
-          <button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+          <button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2">
+            <FaSignOutAlt />
             Logout
           </button>
         </div>

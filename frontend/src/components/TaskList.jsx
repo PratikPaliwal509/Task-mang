@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { tasksAPI } from "../api/tasks"
+import { FaTrash, FaComments } from "react-icons/fa"
 
 function TaskList({ filters, onTasksLoaded }) {
   const [tasks, setTasks] = useState([])
@@ -147,16 +148,18 @@ function TaskList({ filters, onTasksLoaded }) {
 
               <button
                 onClick={() => handleDelete(task._id)}
-                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded"
+                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded flex items-center gap-1"
               >
+                <FaTrash className="text-sm" />
                 Delete
               </button>
 
               {/* Comments button */}
               <button
                 onClick={() => toggleComments(task._id)}
-                className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded"
+                className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded flex items-center gap-1"
               >
+                <FaComments className="text-sm" />
                 {openComments[task._id] ? "Hide" : "Comments"}
               </button>
             </div>
